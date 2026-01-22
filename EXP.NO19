@@ -1,0 +1,34 @@
+#include <stdio.h>
+#include <pthread.h>
+
+pthread_mutex_t mutex;
+int shared = 0;
+
+void* process(void* arg) {
+    int i;
+    pthread_mutex_lock(&mutex);
+    for (i = 0; i < 5; i++) {
+        shared++;
+        printf("Process %ld incremented shared to %d\n",
+               (long)arg, shared);
+    }
+    pthread_mutex_unlock(&mutex);
+    return NULL;
+}
+
+int main() {
+    pthread_t p1, p2;
+
+    pthread_mutex_init(&mutex, NULL);
+
+    pthread_create(&p1, NULL, process, (void*)1);
+    pthread_create(&p2, NULL, process, (void*)2);
+
+    pthread_join(p1, NULL);
+    pthread_join(p2, NULL);
+
+    pthread_mutex_destroy(&mutex);
+
+    printf("Final value of shared = %d\n", shared);
+    return 0;
+}
