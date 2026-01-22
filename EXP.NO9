@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <unistd.h>
+#include <string.h>
+
+#define SHM_SIZE 1024  // Size of shared memory
+
+int main() {
+    key_t key = 1234;  // Shared memory key
+    int shmid;
+    char *data;
+
+    // Create shared memory
+    shmid = shmget(key, SHM_SIZE, 0666 | IPC_CREAT);
+    if (shmid < 0) {
+        perror("shmget failed");
+        exit(1);
+    }
+
+    // Fork a new process
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        perror("fork failed");
+        exit(1);
+    } 
+    else if (pid == 0) {
+        // Child process - reader
+        sleep(1); // Wait for parent to write
+        data = (char*) shmat(shmid, NULL, 0);
+        if (data == (char*) -1) {
+            perror("shmat failed");
+            exit(1);
+        }
+
+        printf("Child reads from shared memory: %s\n", data);
+
+        shmdt(data); // Detach
+    } 
+    else {
+        // Parent process - writer
+        data = (char*) shmat(shmid, NULL, 0);
+        if (data == (char*) -1) {
+            perror("shmat failed");
+            exit(1);
+        }
+
+        printf("Parent writing to shared memory...\n");
+        strcpy(data, "Hello from Parent!");
+
+        shmdt(data); // Detach
+        wait(NULL);  // Wait for child to finish
+
+        // Destroy shared memory
+        shmctl(shmid, IPC_RMID, NULL);
+    }
+
+    return 0;
+}
