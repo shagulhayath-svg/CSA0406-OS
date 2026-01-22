@@ -1,0 +1,65 @@
+#include <stdio.h>
+
+int readCount = 0;
+int mutex = 1;     // semaphore for readCount
+int wrt = 1;       // semaphore for writer control
+int data = 100;    // shared data
+
+void wait(int *s) {
+    (*s)--;
+}
+
+void signal(int *s) {
+    (*s)++;
+}
+
+void reader(int id) {
+    wait(&mutex);
+    readCount++;
+    if (readCount == 1)
+        wait(&wrt);
+    signal(&mutex);
+
+    printf("Reader %d reads data = %d\n", id, data);
+
+    wait(&mutex);
+    readCount--;
+    if (readCount == 0)
+        signal(&wrt);
+    signal(&mutex);
+}
+
+void writer(int id) {
+    wait(&wrt);
+    data += 10;
+    printf("Writer %d writes data = %d\n", id, data);
+    signal(&wrt);
+}
+
+int main() {
+    int choice, id;
+
+    while (1) {
+        printf("\n1. Reader\n2. Writer\n3. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+        case 1:
+            printf("Enter Reader ID: ");
+            scanf("%d", &id);
+            reader(id);
+            break;
+
+        case 2:
+            printf("Enter Writer ID: ");
+            scanf("%d", &id);
+            writer(id);
+            break;
+
+        case 3:
+            return 0;
+        }
+    }
+    return 0;
+}
