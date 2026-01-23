@@ -1,0 +1,72 @@
+#include <stdio.h>
+
+int main() {
+    int n, m, i, j, k, page[50], frame[10], recent[10];
+    int count = 0;
+
+    printf("Enter number of pages: ");
+    scanf("%d", &n);
+
+    printf("Enter page reference sequence:\n");
+    for (i = 0; i < n; i++)
+        scanf("%d", &page[i]);
+
+    printf("Enter number of frames: ");
+    scanf("%d", &m);
+
+    // Initialize frames and recent array
+    for (i = 0; i < m; i++) {
+        frame[i] = -1;
+        recent[i] = -1;
+    }
+
+    printf("\nPage\tFrames\tPage Fault\n");
+
+    for (i = 0; i < n; i++) {
+        int flag = 0;
+
+        // Check if page is already in frame (hit)
+        for (j = 0; j < m; j++) {
+            if (frame[j] == page[i]) {
+                flag = 1;
+                break;
+            }
+        }
+
+        if (flag == 0) { // Page fault
+            int lru_index = 0, min_recent = recent[0];
+
+            // Find the least recently used page
+            for (j = 0; j < m; j++) {
+                if (recent[j] < min_recent) {
+                    min_recent = recent[j];
+                    lru_index = j;
+                }
+            }
+
+            frame[lru_index] = page[i];
+            recent[lru_index] = i; // update recent
+            count++;
+
+            printf("%d\t", page[i]);
+            for (k = 0; k < m; k++)
+                printf("%d ", frame[k]);
+            printf("\tYes\n");
+        } else { // Page hit
+            // Update recent
+            for (j = 0; j < m; j++) {
+                if (frame[j] == page[i])
+                    recent[j] = i;
+            }
+
+            printf("%d\t", page[i]);
+            for (k = 0; k < m; k++)
+                printf("%d ", frame[k]);
+            printf("\tNo\n");
+        }
+    }
+
+    printf("\nTotal Page Faults: %d\n", count);
+
+    return 0;
+}
