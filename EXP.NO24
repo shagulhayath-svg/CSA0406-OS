@@ -1,0 +1,34 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+
+int main() {
+    int fd;
+    char writeBuffer[] = "UNIX System Calls for File Management\n";
+    char readBuffer[100];
+
+    /* Create and open a file */
+    fd = open("sample.txt", O_CREAT | O_RDWR, 0644);
+
+    if (fd == -1) {
+        perror("File open failed");
+        return 1;
+    }
+
+    /* Write to file */
+    write(fd, writeBuffer, strlen(writeBuffer));
+    printf("Data written to file successfully.\n");
+
+    /* Move file pointer to beginning */
+    lseek(fd, 0, SEEK_SET);
+
+    /* Read from file */
+    read(fd, readBuffer, sizeof(readBuffer));
+    printf("Data read from file:\n%s", readBuffer);
+
+    /* Close the file */
+    close(fd);
+
+    return 0;
+}
