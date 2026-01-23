@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int n, i, head, direction, maxCylinder;
+    int totalHeadMovement = 0;
+
+    printf("Enter number of disk requests: ");
+    scanf("%d", &n);
+
+    int requests[n];
+    printf("Enter the disk request sequence: ");
+    for (i = 0; i < n; i++)
+        scanf("%d", &requests[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("Enter head movement direction (0 = towards 0, 1 = towards max cylinder): ");
+    scanf("%d", &direction);
+
+    printf("Enter maximum cylinder number: ");
+    scanf("%d", &maxCylinder);
+
+    int left[n], right[n];
+    int l = 0, r = 0;
+
+    // Separate requests based on head position
+    for (i = 0; i < n; i++) {
+        if (requests[i] < head)
+            left[l++] = requests[i];
+        else
+            right[r++] = requests[i];
+    }
+
+    // Sort left and right arrays
+    for (i = 0; i < l - 1; i++)
+        for (int j = i + 1; j < l; j++)
+            if (left[i] > left[j]) {
+                int temp = left[i]; left[i] = left[j]; left[j] = temp;
+            }
+
+    for (i = 0; i < r - 1; i++)
+        for (int j = i + 1; j < r; j++)
+            if (right[i] > right[j]) {
+                int temp = right[i]; right[i] = right[j]; right[j] = temp;
+            }
+
+    printf("\nDisk Head Movement:\n");
+    int currentHead = head;
+
+    if (direction == 1) { // Moving towards higher cylinder
+        // Serve right requests first
+        for (i = 0; i < r; i++) {
+            printf("Move from %d to %d -> Movement = %d\n", currentHead, right[i], abs(right[i] - currentHead));
+            totalHeadMovement += abs(right[i] - currentHead);
+            currentHead = right[i];
+        }
+        // Move to end of disk
+        printf("Move from %d to %d -> Movement = %d\n", currentHead, maxCylinder, abs(maxCylinder - currentHead));
+        totalHeadMovement += abs(maxCylinder - currentHead);
+        currentHead = 0; // jump to beginning of disk
+        totalHeadMovement += maxCylinder; // add movement from end to start
+        printf("Jump from %d to %d -> Movement = %d\n", maxCylinder,
