@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_BLOCKS 100
+#define BLOCK_SIZE 100
+
+int main() {
+    int n, i, choice, block_no;
+    char indexBlock[MAX_BLOCKS][BLOCK_SIZE];
+    int numBlocks;
+
+    printf("Enter number of blocks in the file: ");
+    scanf("%d", &numBlocks);
+    getchar(); // consume newline
+
+    // Input data for each block
+    for (i = 0; i < numBlocks; i++) {
+        printf("Enter data for block %d: ", i);
+        fgets(indexBlock[i], sizeof(indexBlock[i]), stdin);
+        indexBlock[i][strcspn(indexBlock[i], "\n")] = '\0'; // remove newline
+    }
+
+    while (1) {
+        printf("\n--- Indexed File Operations ---\n");
+        printf("1. Display all blocks\n");
+        printf("2. Access a particular block\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); // consume newline
+
+        switch (choice) {
+            case 1:
+                printf("\nAll blocks in the file:\n");
+                for (i = 0; i < numBlocks; i++)
+                    printf("Block %d: %s\n", i, indexBlock[i]);
+                break;
+
+            case 2:
+                printf("Enter block number to access (0 to %d): ", numBlocks - 1);
+                scanf("%d", &block_no);
+                if (block_no < 0 || block_no >= numBlocks) {
+                    printf("Invalid block number!\n");
+                    break;
+                }
+                printf("Accessing Block %d: %s\n", block_no, indexBlock[block_no]);
+                break;
+
+            case 3:
+                printf("Exiting program.\n");
+                exit(0);
+
+            default:
+                printf("Invalid choice! Try again.\n");
+        }
+    }
+
+    return 0;
+}
