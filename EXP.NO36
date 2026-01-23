@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_BLOCKS 100
+#define BLOCK_SIZE 100
+
+// Structure for a disk block
+typedef struct Block {
+    char data[BLOCK_SIZE];
+    struct Block *next;
+} Block;
+
+// Structure for a file
+typedef struct File {
+    Block *start;
+    Block *end;
+} File;
+
+int main() {
+    int n, i, choice;
+    File myFile;
+    myFile.start = NULL;
+    myFile.end = NULL;
+
+    printf("Enter number of blocks for the file: ");
+    scanf("%d", &n);
+    getchar(); // consume newline
+
+    for (i = 0; i < n; i++) {
+        Block *newBlock = (Block *)malloc(sizeof(Block));
+        printf("Enter data for block %d: ", i + 1);
+        fgets(newBlock->data, sizeof(newBlock->data), stdin);
+        newBlock->data[strcspn(newBlock->data, "\n")] = '\0'; // remove newline
+        newBlock->next = NULL;
+
+        if (myFile.start == NULL) {
+            myFile.start = newBlock;
+            myFile.end = newBlock;
+        } else {
+            myFile.end->next = newBlock;
+            myFile.end = newBlock;
+        }
+    }
+
+    Block *temp;
+
+    while (1) {
+        printf("\n--- Linked File Operations ---\n");
+        printf("1. Display all blocks\n");
+        printf("2. Access a particular block\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); // consume newline
+
+        switch (choice) {
+            case 1:
+                printf("\nAll blocks in the file:\n");
+                temp = myFile.start;
+                i = 1;
+                while (temp != NULL) {
+                    printf("Block %d: %s\n", i, temp->data);
+                    temp = temp->next;
+                    i++;
+                }
+                break;
+
+            case 2:
+                printf("Enter block number to access: ");
+                int block_no;
+                scanf("%d", &block_no);
+                getchar();
+
+                temp = myFile.start;
+                i = 1;
+                while (temp != NULL && i < block_no) {
+                    temp = temp->next;
+                    i++;
+                }
+                if (temp != NULL)
+                    printf("Accessing Block %d: %s\n", block_no, temp->data);
+                else
+                    printf("Invalid block number!\n");
+                break;
+
+            case 3:
+                printf("Exiting program.\n");
+                // Free memory
+                temp = myFile.start;
+                while (temp != NULL) {
+                    Block *nextBlock = temp->next;
+                    free(temp);
+                    temp = nextBlock;
+                }
+                exit(0);
+
+            default:
+                printf("Invalid choice! Try again.\n");
+        }
+    }
+
+    return 0;
+}
