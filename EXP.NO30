@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+
+// Thread function
+void* myThread(void* arg) {
+    int id = *((int*)arg);
+    printf("Thread %d: Running\n", id);
+    sleep(1); // simulate work
+    printf("Thread %d: Exiting\n", id);
+    pthread_exit((void*)(long)(id * 10)); // return some value
+}
+
+int main() {
+    pthread_t t1, t2;
+    int t1_id = 1, t2_id = 2;
+    void* ret1;
+    void* ret2;
+
+    // (i) Create threads
+    pthread_create(&t1, NULL, myThread, &t1_id);
+    pthread_create(&t2, NULL, myThread, &t2_id);
+
+    // (iii) Compare thread IDs (equal)
+    if (pthread_equal(t1, t2))
+        printf("Threads t1 and t2 are equal\n");
+    else
+        printf("Threads t1 and t2 are NOT equal\n");
+
+    // (ii) Join threads
+    pthread_join(t1, &ret1);
+    pthread_join(t2, &ret2);
+
+    // Display returned values from threads
+    printf("Thread 1 returned: %ld\n", (long)ret1);
+    printf("Thread 2 returned: %ld\n", (long)ret2);
+
+    printf("Main thread exiting.\n");
+    return 0;
+}
