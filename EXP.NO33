@@ -1,0 +1,86 @@
+#include <stdio.h>
+
+int main() {
+    int n, m, i, j, k, page[50], frame[10];
+    int count = 0;
+
+    printf("Enter number of pages: ");
+    scanf("%d", &n);
+
+    printf("Enter page reference sequence:\n");
+    for (i = 0; i < n; i++)
+        scanf("%d", &page[i]);
+
+    printf("Enter number of frames: ");
+    scanf("%d", &m);
+
+    // Initialize frames
+    for (i = 0; i < m; i++)
+        frame[i] = -1;
+
+    printf("\nPage\tFrames\tPage Fault\n");
+
+    for (i = 0; i < n; i++) {
+        int flag = 0;
+
+        // Check if page is already in frame (hit)
+        for (j = 0; j < m; j++) {
+            if (frame[j] == page[i]) {
+                flag = 1;
+                break;
+            }
+        }
+
+        if (flag == 0) { // Page fault
+            int replace_index = -1, farthest = i;
+
+            // If any empty frame, use it first
+            for (j = 0; j < m; j++) {
+                if (frame[j] == -1) {
+                    replace_index = j;
+                    break;
+                }
+            }
+
+            // If no empty frame, find optimal page to replace
+            if (replace_index == -1) {
+                int temp;
+                int max_distance = -1;
+                for (j = 0; j < m; j++) {
+                    temp = -1;
+                    for (k = i + 1; k < n; k++) {
+                        if (frame[j] == page[k]) {
+                            temp = k;
+                            break;
+                        }
+                    }
+                    if (temp == -1) { // Not used again, replace immediately
+                        replace_index = j;
+                        break;
+                    } else if (temp > max_distance) {
+                        max_distance = temp;
+                        replace_index = j;
+                    }
+                }
+            }
+
+            // Replace the page
+            frame[replace_index] = page[i];
+            count++;
+
+            printf("%d\t", page[i]);
+            for (j = 0; j < m; j++)
+                printf("%d ", frame[j]);
+            printf("\tYes\n");
+        } else { // Page hit
+            printf("%d\t", page[i]);
+            for (j = 0; j < m; j++)
+                printf("%d ", frame[j]);
+            printf("\tNo\n");
+        }
+    }
+
+    printf("\nTotal Page Faults: %d\n", count);
+
+    return 0;
+}
