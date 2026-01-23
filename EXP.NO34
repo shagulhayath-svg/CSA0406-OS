@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_RECORDS 100
+#define RECORD_SIZE 100
+
+int main() {
+    char file[MAX_RECORDS][RECORD_SIZE];
+    int n, i, choice, record_no;
+    char data[RECORD_SIZE];
+
+    printf("Enter number of records to create: ");
+    scanf("%d", &n);
+    getchar(); // consume newline
+
+    // Input records
+    for (i = 0; i < n; i++) {
+        printf("Enter data for record %d: ", i + 1);
+        fgets(file[i], sizeof(file[i]), stdin);
+        file[i][strcspn(file[i], "\n")] = '\0'; // remove newline
+    }
+
+    while (1) {
+        printf("\n--- Sequential File Operations ---\n");
+        printf("1. Display all records\n");
+        printf("2. Access a particular record\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar(); // consume newline
+
+        switch (choice) {
+            case 1:
+                printf("\nAll records in the file:\n");
+                for (i = 0; i < n; i++)
+                    printf("Record %d: %s\n", i + 1, file[i]);
+                break;
+
+            case 2:
+                printf("Enter record number to access (1 to %d): ", n);
+                scanf("%d", &record_no);
+                if (record_no < 1 || record_no > n) {
+                    printf("Invalid record number!\n");
+                    break;
+                }
+                printf("\nAccessing record %d sequentially:\n", record_no);
+                for (i = 0; i < record_no; i++)
+                    printf("Record %d: %s\n", i + 1, file[i]);
+                break;
+
+            case 3:
+                printf("Exiting program.\n");
+                return 0;
+
+            default:
+                printf("Invalid choice! Try again.\n");
+        }
+    }
+
+    return 0;
+}
